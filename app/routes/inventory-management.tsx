@@ -90,6 +90,17 @@ export async function action({ request }: Route.ActionArgs) {
     await prisma.inventoryItem.delete({
       where: { id: itemId, userId: user.id } // Ensures the user owns the item
     });
+  } else if (intent === "bulk-delete") {
+    const ids = formData.getAll("ids") as string[];
+    await prisma.inventoryItem.deleteMany({
+      where: { id: { in: ids }, userId: user.id }
+    });
+  } else if (intent === "bulk-mark-sold") {
+    const ids = formData.getAll("ids") as string[];
+    await prisma.inventoryItem.updateMany({
+      where: { id: { in: ids }, userId: user.id },
+      data: { status: "SOLD" }
+    });
   }
 
   return { ok: true, intent };
@@ -113,6 +124,12 @@ export default function InventoryManagementPage() {
         setEditingItem(null);
       } else if (actionData.intent === "delete") {
         toast.success("Item deleted");
+      } else if (actionData.intent === "bulk-delete") {
+        toast.success("Items deleted successfully");
+        setSelected([]);
+      } else if (actionData.intent === "bulk-mark-sold") {
+        toast.success("Items marked as sold");
+        setSelected([]);
       }
     }
   }, [actionData]);
@@ -124,7 +141,7 @@ export default function InventoryManagementPage() {
         onImport={() => setShowImport(true)}
       />
       {selected.length > 0 && (
-        <BulkActionsBar count={selected.length} onClear={() => setSelected([])} />
+        <BulkActionsBar count={selected.length} onClear={() => setSelected([])} selectedIds={selected} items={items} />
       )}
       <InventoryTable selected={selected} onSelectChange={setSelected} items={items} onEdit={setEditingItem} />
       {showAddItem && <AddItemModal onClose={() => setShowAddItem(false)} />}

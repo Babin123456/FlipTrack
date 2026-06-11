@@ -10,6 +10,7 @@ import { TopBrandsChart } from "~/blocks/dashboard/top-brands-chart";
 import { SalesByMarketplacePie } from "~/blocks/dashboard/sales-by-marketplace-pie";
 import { TopSellingItemsTable } from "~/blocks/dashboard/top-selling-items-table";
 import { RecentSales } from "~/blocks/dashboard/recent-sales";
+import { ExpenseCategoriesChart } from "~/blocks/dashboard/expense-categories-chart";
 
 import { AIInsightsPanel } from "~/blocks/dashboard/ai-insights-panel";
 
@@ -69,9 +70,10 @@ export default function DashboardPage() {
       <AIInsightsPanel />
       <StatsCardsRow stats={inventoryStats} sales={salesData} expenses={expensesData} />
       <CashFlowChart sales={salesData} expenses={expensesData} />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-6)", marginBottom: "var(--space-6)" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--space-6)", marginBottom: "var(--space-6)" }}>
         <TopBrandsChart sales={salesData} />
         <SalesByMarketplacePie sales={salesData} />
+        <ExpenseCategoriesChart expenses={expensesData} />
       </div>
       <TopSellingItemsTable sales={salesData} />
       <RecentSales sales={salesData} />

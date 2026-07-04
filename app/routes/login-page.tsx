@@ -6,6 +6,7 @@ import { LoginForm } from "~/blocks/login-page/login-form";
 import { OAuthOptions } from "~/blocks/login-page/o-auth-options";
 import { MagicLinkOption } from "~/blocks/login-page/magic-link-option";
 import { SignupLink } from "~/blocks/login-page/signup-link";
+import { rateLimit } from "~/utils/rate-limit.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { supabase, headers } = getSupabaseServerClient(request);
@@ -15,7 +16,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
+  await rateLimit(request, 5, 60_000);
+
   const { supabase, headers } = getSupabaseServerClient(request);
+
   const formData = await request.formData();
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;

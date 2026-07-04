@@ -7,6 +7,7 @@ import { SignupForm } from "~/blocks/signup-page/signup-form";
 import { OAuthSignup } from "~/blocks/signup-page/o-auth-signup";
 import { LoginLink } from "~/blocks/signup-page/login-link";
 import { TermsAcceptance } from "~/blocks/signup-page/terms-acceptance";
+import { rateLimit } from "~/utils/rate-limit.server";
 
 const prisma = new PrismaClient();
 
@@ -18,7 +19,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
+  await rateLimit(request, 5, 60_000);
+
   const { supabase, headers } = getSupabaseServerClient(request);
+
   const formData = await request.formData();
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;

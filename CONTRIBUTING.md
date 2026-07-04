@@ -353,3 +353,17 @@ All contributors will be recognized in the project. We value every contribution 
   <br />
   <sub>Built with ❤️ by the FlipTrack community</sub>
 </div>
+
+---
+
+## Rate Limiting
+
+A reusable `rateLimit(request, limit, windowMs)` utility is available in `app/utils/rate-limit.server.ts`.
+
+Example:
+
+```ts
+await rateLimit(request, 5, 60_000);
+```
+
+This implementation currently uses an in-memory store. Because FlipTrack is deployed on Vercel, the in-memory cache is per serverless invocation and is not shared across instances. For production deployments requiring distributed rate limiting, consider using a shared backend such as Upstash Redis or Vercel KV.

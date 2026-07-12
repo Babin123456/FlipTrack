@@ -1,7 +1,6 @@
 import { useState } from "react";
-import styles from "./magic-link-option.module.css";
-import { createBrowserClient } from "@supabase/ssr";
 import { getSupabaseBrowserClient } from "~/utils/supabase.client";
+import styles from "./magic-link-option.module.css";
 
 interface Props {
   className?: string;
@@ -30,7 +29,6 @@ export function MagicLinkOption({ className }: Props) {
 
     setLoading(true);
     try {
-      //Calling getSupabaseBroswerClient from utils supabase.Client
       const supabase = getSupabaseBrowserClient();
       if (!supabase) {
         setErrorMsg("Supabase is not configured (missing URL/anon key).");
@@ -40,14 +38,19 @@ export function MagicLinkOption({ className }: Props) {
       const { error } = await supabase.auth.signInWithOtp({
         email: trimmed,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
       if (error) throw error;
       setSent(true);
     } catch (err: any) {
-      setErrorMsg(err?.message || "Failed to send magic link.");
+      console.error("Magic link error:", err);
+      setErrorMsg(
+        err.message === "fetch failed"
+          ? "Unable to connect to the authentication server. Please try again later."
+          : err?.message || "Failed to send magic link."
+      );
     } finally {
       setLoading(false);
     }
@@ -75,17 +78,19 @@ export function MagicLinkOption({ className }: Props) {
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
           />
-          <button className={styles.sendBtn} aria-label="Send Magic Link" onClick={handleSendLink} disabled={loading}>
+          <button 
+            className={styles.sendBtn} 
+            aria-label="Send Magic Link" 
+            onClick={handleSendLink} 
+            disabled={loading}
+          >
             {loading ? "Sending..." : "Send Link"}
           </button>
         </div>
       )}
 
       {errorMsg && (
-        <div
-          className={styles.error}
-          style={{ color: "red", marginTop: "8px", fontSize: "14px" }}
-        >
+        <div className={styles.error}>
           {errorMsg}
         </div>
       )}
